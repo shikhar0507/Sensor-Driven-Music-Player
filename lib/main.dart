@@ -16,7 +16,7 @@ void main() async {
 }
 
 class HealthFlex extends StatelessWidget {
-  const HealthFlex({Key? key});
+  const HealthFlex({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,16 +35,20 @@ class HealthFlex extends StatelessWidget {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key});
+  const HomePage({super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
+/// _HomePageState - Renders the home screen with a list of songs in a listView
+/// It also takes care of the error from the API as well as showing the circular indicator
+/// until the API response comes.
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    // Call the fetchSongs API only once
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AppState>(context, listen: false).fetchSongs();
     });
@@ -57,7 +61,6 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Heading in the body
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
@@ -68,7 +71,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
+          // Only render the list when there is no error and the API response is parsed.
+          appState.error.isNotEmpty ? Text(appState.error):
           appState.songs.isEmpty
               ? SizedBox(
                   height: MediaQuery.of(context).size.height / 1.3,
@@ -76,9 +80,7 @@ class _HomePageState extends State<HomePage> {
                     child: CircularProgressIndicator(),
                   ),
                 )
-              :
-              // Use an Expanded widget to allow the ListView to take up all available space
-              Expanded(
+              : Expanded(
                   child: ListView.builder(
                     itemCount: appState.songs.length,
                     itemBuilder: (context, index) {
@@ -86,6 +88,8 @@ class _HomePageState extends State<HomePage> {
                         title: Text(appState.songs[index].name),
                         subtitle: Text(appState.songs[index].username),
                         onTap: () {
+                          // reset the audio state on each new click 
+                          // for the SongPage view to work correctly.
                           appState.audio = const Audio(
                             description: "",
                             preview: "",
@@ -113,12 +117,16 @@ class _HomePageState extends State<HomePage> {
 
 class SongPage extends StatefulWidget {
   final Song song;
-  const SongPage({Key? key, required this.song});
+  const SongPage({super.key, required this.song});
 
   @override
   _SongPage createState() => _SongPage();
 }
 
+
+/// _SongPage - Renders the home screen with a song details in a Card
+/// It also takes care of the error from the API as well as showing the circular indicator
+/// until the API response comes.
 class _SongPage extends State<SongPage> {
   bool isPlay = false;
   AudioPlayer? audioPlayer;
@@ -134,6 +142,7 @@ class _SongPage extends State<SongPage> {
 
     audioPlayer ??= AudioPlayer();
 
+    // Only run the Sensors when platform is either android or ios
     if (defaultTargetPlatform == TargetPlatform.android ||
         defaultTargetPlatform == TargetPlatform.iOS) {
       accelerometerSubscription = accelerometerEventStream().listen(
@@ -144,6 +153,7 @@ class _SongPage extends State<SongPage> {
               accelY = event.y;
               accelZ = event.z;
             });
+            // If audio is playing then update the temp
             if (isPlay) {
               _setupAudioTempo();
             }
@@ -160,17 +170,20 @@ class _SongPage extends State<SongPage> {
       );
     }
 
+    // Call the fetchSongById only once
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AppState>(context, listen: false).fetchSong(widget.song.id);
     });
   }
 
+  // Initialize the audio player loop
   void _initAudio(AppState appState) async {
     audioPlayer!.onPlayerComplete.listen((event) async {
       _setupAudioState(appState);
     });
   }
 
+  // Setup the audio player to play a sound and configure volume as well
   void _setupAudioState(AppState appState) async {
     if (audioPlayer != null && appState.audio.preview.isNotEmpty) {
       try {
@@ -184,28 +197,31 @@ class _SongPage extends State<SongPage> {
     }
   }
 
+  // Uses the Y-Axis data to get a new tempo value which gets
+  // clampped between 0.5 and 2 (as specified in the docs for audio player)
   void _setupAudioTempo() async {
     double newTempo = accelY;
 
     // Min-Max range as specifed in the docs
-    newTempo = mapDataToSmoothRange(newTempo);
+    newTempo = mapDataToSensor(newTempo);
     newTempo = newTempo.clamp(0.5, 2);
-    log("$newTempo");
     if (audioPlayer != null && mounted) {
       await audioPlayer?.setPlaybackRate(newTempo);
     }
   }
 
-  double mapDataToSmoothRange(double inputData) {
+  double mapDataToSensor(double inputData) {
     double normalizedData = (inputData + 10) / 20;
 
-    double smoothValue = normalizedData * normalizedData;
+    double quadraticSmooth = normalizedData * normalizedData;
 
-    double mappedValue = smoothValue * 1.5 + 0.5;
+    double value = quadraticSmooth * 1.5 + 0.5;
 
-    return mappedValue;
+    return value;
   }
 
+
+  // Remove all instances of sensors and audio players
   @override
   void dispose() {
     audioPlayer?.dispose();
@@ -229,12 +245,15 @@ class _SongPage extends State<SongPage> {
       appBar: AppBar(
         title: Text(widget.song.name),
         actions: [
-          BackButton(
-            onPressed: () async => {await audioPlayer!.stop()},
-          )
+          // BackButton(
+          //   onPressed: () async => {await audioPlayer!.stop()},
+          // )
         ],
       ),
-      body: appState.audio.preview.isEmpty
+
+      // Render card view if there is no error and API Response has been parsed into Audio
+      body: appState.error.isNotEmpty ? Text(appState.error) : 
+      appState.audio.preview.isEmpty
           ? SizedBox(
               height: MediaQuery.of(context).size.height / 1.3,
               child: const Center(

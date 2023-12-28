@@ -1,3 +1,4 @@
+/// SongsList - Parse the Api response into SongsList to extract results and the count  
 class SongsList {
   final int count;
   final List<Song> results;
@@ -18,6 +19,7 @@ class SongsList {
   }
 }
 
+/// SongsList - Parse the SongsList result into Song to extract song details like id, username and tags 
 class Song {
   final int id;
   final String name;
@@ -41,6 +43,7 @@ class Song {
   }
 }
 
+/// Audio - Parse the fetchSongById API Response into Audio to get bitrate and sound file
 class Audio {
   final String description;
   final String preview;

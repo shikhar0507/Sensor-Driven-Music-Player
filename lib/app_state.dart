@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:healthflex/api/api.dart';
 import 'package:healthflex/models/models.dart';
 
+/// AppState uses the ChangeNotifier to keep a consistent app state across screens. 
+/// Here songsList and audio are used as state properties to be later used in the widgets
 class AppState extends ChangeNotifier {
   Map<String, dynamic> songsList = {};
   List<Song> songs = [];
@@ -14,28 +16,32 @@ class AppState extends ChangeNotifier {
     duration: 0,
   );
 
+  // For error cases 
   String error = "";
+  // fetchSongs() - Calls the required API method and store the results in the state variables
+  // and setting the error value
   Future<void> fetchSongs() async {
     try {
       var songsList = await Api.fetchSongList();
       songs = songsList.results;
+      error = "";
     } catch (e) {
-      error = e.toString();
-
-      log(error);
+      log(e.toString());
+      error = "Failed to fetch the song list";
     } finally {
-      log(songsList.toString());
       notifyListeners();
     }
   }
 
+  // fetchSong() - Calls the required API method and store the results in the state variables,
+  // and setting the error value
   Future<void> fetchSong(int id) async {
     try {
       audio = await Api.fetchSongById(id);
+      error = "";
     } catch (e) {
-      error = e.toString();
-
-      log(error);
+      error = "Failed to fetch the song details";
+      log(e.toString());
     } finally {
       notifyListeners();
     }
