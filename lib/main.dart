@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:healthflex/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:healthflex/models/models.dart';
@@ -134,7 +134,8 @@ class _SongPage extends State<SongPage> {
 
     audioPlayer ??= AudioPlayer();
 
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS) {
       accelerometerSubscription = accelerometerEventStream().listen(
         (AccelerometerEvent event) {
           if (mounted) {
@@ -259,10 +260,9 @@ class _SongPage extends State<SongPage> {
                         style: TextStyle(color: Colors.black.withOpacity(0.6)),
                       ),
                     ),
-                    if(Platform.isAndroid || Platform.isIOS)
-                      Text("X: $accelX"),
-                      Text("Y: $accelY"),
-                      Text("Z: $accelZ"),
+                    Text("X: $accelX"),
+                    Text("Y: $accelY"),
+                    Text("Z: $accelZ"),
                     errorAudioPlay.isNotEmpty
                         ? Text(errorAudioPlay)
                         : ButtonBar(

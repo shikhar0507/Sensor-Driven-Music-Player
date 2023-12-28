@@ -1,8 +1,13 @@
 # Sensor-Driven-Music-Player
 The app utilizes accelerometer from the mobile device to control the speed of a sound loop. Moving the device up along Y-Axis increase the temp and moving down decreases the temp
 
+It provides support to list and play the audio file across platforms but for sensor mapping only Android & Ios are supported.
+
+
+
+
 # How to run
-Since it depends on the Sensors data , the app will work best on the mobile devices.
+For Sensor Mapping use either Android or Ios device. 
 
 ## Android
 
