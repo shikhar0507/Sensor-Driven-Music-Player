@@ -19,12 +19,9 @@ For convenience a debug build is already created for android devices.
 2. Once your device is connected and found via `flutter devices` or `adb devices`. Run flutter command.
 ```
 flutter install
-
 ```
-
 This will ask you to select the android phone. Choose it and wait until the debug apk is build
 
-3. Use it
 
 # Implementation
 
