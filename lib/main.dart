@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 import 'package:healthflex/app_state.dart';
 import 'package:flutter/material.dart';
 import 'package:healthflex/models/models.dart';
@@ -133,28 +134,31 @@ class _SongPage extends State<SongPage> {
 
     audioPlayer ??= AudioPlayer();
 
-    accelerometerSubscription = accelerometerEventStream().listen(
-      (AccelerometerEvent event) {
-        if (mounted) {
-          setState(() {
-            accelX = event.x;
-            accelY = event.y;
-            accelZ = event.z;
-          });
-          if (isPlay) {
-            _setupAudioTempo();
+    if (Platform.isAndroid || Platform.isIOS) {
+      accelerometerSubscription = accelerometerEventStream().listen(
+        (AccelerometerEvent event) {
+          if (mounted) {
+            setState(() {
+              accelX = event.x;
+              accelY = event.y;
+              accelZ = event.z;
+            });
+            if (isPlay) {
+              _setupAudioTempo();
+            }
           }
-        }
-      },
-      onError: (error) {
-        Fluttertoast.showToast(
-            msg: "Failed to fetch the sensors data",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER);
-        log(error.toString());
-      },
-      cancelOnError: true,
-    );
+        },
+        onError: (error) {
+          Fluttertoast.showToast(
+              msg: "Failed to fetch the sensors data",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.CENTER);
+          log(error.toString());
+        },
+        cancelOnError: true,
+      );
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AppState>(context, listen: false).fetchSong(widget.song.id);
     });
@@ -255,9 +259,10 @@ class _SongPage extends State<SongPage> {
                         style: TextStyle(color: Colors.black.withOpacity(0.6)),
                       ),
                     ),
-                    Text("X: $accelX"),
-                    Text("Y: $accelY"),
-                    Text("Z: $accelZ"),
+                    if(Platform.isAndroid || Platform.isIOS)
+                      Text("X: $accelX"),
+                      Text("Y: $accelY"),
+                      Text("Z: $accelZ"),
                     errorAudioPlay.isNotEmpty
                         ? Text(errorAudioPlay)
                         : ButtonBar(

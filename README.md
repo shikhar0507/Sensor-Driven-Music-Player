@@ -1,6 +1,31 @@
 # Sensor-Driven-Music-Player
 The app utilizes accelerometer from the mobile device to control the speed of a sound loop. Moving the device up along Y-Axis increase the temp and moving down decreases the temp
 
+# How to run
+Since it depends on the Sensors data , the app will work best on the mobile devices.
+
+## Android
+
+### Running the debug build directly
+
+For convenience a debug build is already created for android devices. 
+1. Download the debug build from `https://drive.google.com/drive/folders/1v7Eovuq9RCSMsHzsVMPTuQ2Iyn58jVyu?usp=sharing` into your android device
+
+2. Run the `app-debug.apk` from your android device and run.
+
+### Running the debug build
+
+1. Connect the device via the usb-cable and make sure to turn on the `usb debugging` via the developer option in the android phone.
+2. Once your device is connected and found via `flutter devices` or `adb devices`. Run flutter command.
+```
+flutter install
+
+```
+
+This will ask you to select the android phone. Choose it and wait until the debug apk is build
+
+3. Use it
+
 # Implementation
 
 ![Implementation](https://github.com/shikhar0507/Sensor-Driven-Music-Player/blob/main/image.png?raw=true)
