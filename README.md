@@ -9,6 +9,8 @@ It provides support to list and play the audio file across platforms but for sen
 # How to run
 For Sensor Mapping use either Android or Ios device. 
 
+1. Create a new `.env` file in the root project and paste the env contents from the email `.env` file. Since it contains API key , the key is not part of this project
+
 ## Android
 
 ### Running the debug build directly
